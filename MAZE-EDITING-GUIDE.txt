@@ -1,0 +1,58 @@
+HOW TO REPOSITION SANTA MAZE OBJECTS
+======================================
+Open script.js in your GitHub repository and search for: const LEVEL=[
+
+The maze is a grid with 12 columns (x=0..11) and 11 rows (y=0..10).
+The TOP LEFT corner is (x=0,y=0), and coordinates increase toward the right and bottom.
+
+Meaning of each character:
+    # = solid border (not walkable)
+    . = empty grass tile
+    S = Santa's starting tile
+    G = chimney (goal)
+    T = tree (blocking obstacle)
+    B = bush (blocking obstacle)
+    X = black bomb with yellow skull (walkable, consumes one heart)
+
+Current maze, including coordinate guides:
+         012345678901   <- x (column)
+    y=0  ############
+    y=1  #S..T...B..#
+    y=2  #.B.T..BBTB#
+    y=3  #...T...B..#
+    y=4  #....BBB...#
+    y=5  #XXB.TG....#
+    y=6  #..B.BBBT.B#
+    y=7  #.B.......B#
+    y=8  #.BBTB.T.BB#
+    y=9  #..........#
+   y=10  ############
+
+To move a tree or bush:
+  1) Change its old T or B to a period (.).
+  2) Replace the period at its new position with T or B.
+
+To move a bomb:
+  1) Change its old X to a period (.).
+  2) Replace the period at its new position with X.
+  3) Update the bombSpots array immediately below LEVEL to match the new coordinates.
+     Example: const bombSpots=[{x:1,y:5},{x:2,y:5}];
+
+IMPORTANT:
+  * Keep the same number of characters on every line (12), and keep the borders.
+  * Keep exactly one S and one G, and exactly two X characters.
+  * Trees and bushes block Santa. Make sure at least one route to G remains open.
+  * The hearts are displayed via updateLives() in script.js. Each bomb triggers once.
+  * Save/commit script.js on GitHub and wait for GitHub Pages to redeploy.
+
+The uploaded screenshot's red arrows have been applied as follows:
+  Bombs from (3,1) and (3,3) moved to (1,5) and (2,5).
+  A bush from (4,6) moved to (5,6).
+  A bush from (6,7) moved to (6,6).
+  To keep a safe route open, the tree at (3,4) was removed.
+
+BOMB EXPLOSION AUDIO
+--------------------
+The sound file is bomb-blast.wav, loaded by playBomb() in script.js.
+You can adjust bombSound.volume = 0.55 or replace the WAV with another
+file of the same name. Your current bomb positions are (3,1) and (2,5).

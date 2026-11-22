@@ -11,7 +11,7 @@ Your two-page, Minecraft-inspired Christmas invitation.
    Click SAVE RSVP to send their name and answer to Formspree. The popup closes only after a successful submission.
 
 EVENT DETAILS
-Friday, December 18, 2026, 6:30 PM
+Friday, December 18, 2026, 7:30 PM
 10430 Swift Stream Place, Apt 408
 
 PUBLISHING

@@ -214,6 +214,25 @@
     shortTone(1046.5,t+.34,.26,.06,'triangle');
     shortTone(783.99,t+.34,.22,.03,'triangle');
   });}
+  // Original retro-style explosion audio is bundled with this website.
+  const bombSound = new Audio('bomb-blast.wav');
+  bombSound.preload = 'auto';
+  bombSound.volume = 0.55; // Edit 0.0 (silent) to 1.0 (maximum).
+  function playBomb(){
+    // A bomb can be hit only after the visitor moves Santa, so browsers allow sound.
+    try {
+      bombSound.pause();
+      bombSound.currentTime = 0;
+      bombSound.play().catch(() => fallbackBombSound());
+    } catch (_) {fallbackBombSound();}
+  }
+  function fallbackBombSound(){
+    const a=getAudio();if(!a||a.state!=='running')return;
+    const t=a.currentTime;
+    shortTone(210,t,.10,.06,'square',120);
+    shortTone(120,t+.04,.18,.05,'triangle',60);
+    shortTone(420,t+.02,.06,.025,'square',180);
+  }
   // A normal mouse-like click for every non-direction button/link/form choice.
   document.addEventListener('click',event=>{
     if(event.target.closest('[data-move]'))return;
@@ -233,24 +252,46 @@
     if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null;}
   });
 
+  // EDIT THE MAZE HERE (see MAZE-EDITING-GUIDE.txt for a grid with coordinates).
+  // Each string is one row, top to bottom; each character is one tile, left to right.
+  // #=border  .=grass  S=Santa start  G=chimney  T=tree  B=bush  X=bomb.
+  // Keep all rows 12 characters wide, and exactly two X tiles.
+  // The extra grass tile at (3,4) keeps the red-arrow rearrangement solvable.
   const LEVEL=[
-    '############',
-    '#S..T......#',
-    '#.B.T..BB..#',
-    '#...T...B..#',
-    '#....BBB...#',
-    '#.....G....#',
-    '#..BB......#',
-    '#.........B#',
-    '#.BB.....BB#',
-    '#..........#',
-    '############'
+    '############', // y=0
+    '#S.XT...B..#', // y=1
+    '#.B.T..BBTB#', // y=2
+    '#...T...B..#', // y=3
+    '#....BBB...#', // y=4
+    '#.XB.TG....#', // y=5  <-- second bomb at x=2
+    '#..B.BBBT.B#', // y=6  <-- two bushes moved to x=5 and x=6
+    '#.B.......B#', // y=7
+    '#.BBTB.T.BB#', // y=8
+    '#..........#', // y=9
+    '############'  // y=10
   ];
   const TW=16;
-  let player={x:1,y:1},won=false,steps=0,flash=0;
+  const startPos={x:1,y:1};
+  // Keep this list in sync with X tiles above: x is column, y is row (both start at 0).
+  const bombSpots=[{x:3,y:1},{x:2,y:5}];
+  const bombKey=({x,y})=>`${x},${y}`;
+  const initialBombs=new Set(bombSpots.map(bombKey));
+  let activeBombs=new Set(initialBombs);
+  let lives=3;
+  let player={...startPos},won=false,steps=0,flash=0;
   const c=$('maze'),status=$('gameStatus');
   let ctx;
   if(c){ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;}
+  function updateLives(){
+    const el=$('livesDisplay');if(!el)return;
+    el.innerHTML='';
+    for(let i=0;i<3;i++){
+      const heart=document.createElement('span');
+      heart.className='heart'+(i<lives?'':' lost');
+      heart.textContent='❤';
+      el.appendChild(heart);
+    }
+  }
   function grass(x,y,seed){
     pixel(ctx,x,y,16,16,'#96734d');
     pixel(ctx,x+1,y+1,14,14,seed%4===0?'#67b74d':'#59a53e');
@@ -310,6 +351,49 @@
     pixel(ctx,x+9,y+14,5,1,'#604734');
     pixel(ctx,x+1,y+1,2,2,'#fff2b6');pixel(ctx,x+14,y+4,2,2,'#fff2b6');
   }
+  function bombTile(x,y,armed=true){
+    grass(x,y,41);
+    if(!armed){
+      // Disarmed bombs leave a tiny patch of ash; they cannot remove another life.
+      pixel(ctx,x+4,y+11,8,2,'#544d48');
+      pixel(ctx,x+6,y+10,5,1,'#84786b');
+      return;
+    }
+    // A round black bomb with a steel-blue outline, gold skull and sparking fuse.
+    // Drawn on the existing 16 x 16 tile grid for a crisp pixel-art look.
+    const outline='#10121b', steel='#4a6572', black='#1e252f';
+    pixel(ctx,x+7,y+1,2,3,'#a38062'); // fuse
+    pixel(ctx,x+8,y+0,2,2,'#f4ac30'); // spark
+    pixel(ctx,x+10,y+0,1,1,'#fff1a1');
+    pixel(ctx,x+6,y+3,4,1,outline); // neck / cap
+    pixel(ctx,x+5,y+4,6,1,'#32323a');
+    pixel(ctx,x+4,y+5,8,1,outline);
+    pixel(ctx,x+3,y+6,10,1,outline);
+    pixel(ctx,x+2,y+7,12,5,outline);
+    pixel(ctx,x+3,y+12,10,1,outline);
+    pixel(ctx,x+4,y+13,8,1,outline);
+    pixel(ctx,x+5,y+14,6,1,outline);
+    // Give it a circular shape and a subtle blue rim.
+    pixel(ctx,x+5,y+5,6,1,steel);
+    pixel(ctx,x+4,y+6,8,1,steel);
+    pixel(ctx,x+3,y+7,10,5,steel);
+    pixel(ctx,x+4,y+12,8,1,steel);
+    pixel(ctx,x+5,y+13,6,1,steel);
+    pixel(ctx,x+5,y+6,6,1,black);
+    pixel(ctx,x+4,y+7,8,5,black);
+    pixel(ctx,x+5,y+12,6,1,black);
+    pixel(ctx,x+4,y+7,2,2,'#536978'); // highlight
+    // Yellow skull: eye sockets, nose and teeth.
+    const yellow='#f8d83d';
+    pixel(ctx,x+6,y+7,4,1,yellow);
+    pixel(ctx,x+5,y+8,6,3,yellow);
+    pixel(ctx,x+6,y+11,4,2,yellow);
+    pixel(ctx,x+6,y+9,2,2,'#28313a');
+    pixel(ctx,x+9,y+9,2,2,'#28313a');
+    pixel(ctx,x+8,y+11,1,1,'#28313a');
+    pixel(ctx,x+7,y+12,1,1,'#28313a');
+    pixel(ctx,x+9,y+12,1,1,'#28313a');
+  }
   function santaTile(x,y){
     // 12x14 sprite, 1px art, shadow, red cap, boots, white beard.
     pixel(ctx,x+2,y+14,13,1,'#325b32');
@@ -335,6 +419,7 @@
       else if(kind==='B')bushTile(x,y,seed);
       else if(kind==='T')treeTile(x,y,seed);
       else if(kind==='G')chimneyTile(x,y);
+      else if(kind==='X')bombTile(x,y,activeBombs.has(`${col},${row}`));
       else grass(x,y,seed);
     }
     let x=player.x*TW,y=player.y*TW;
@@ -350,7 +435,17 @@
     if(!t||t==='#'||t==='B'||t==='T'){
       playStep(true);status.textContent='A tree blocks the path. Try another way!';return;
     }
-    playStep();player={x:xx,y:yy};steps++;drawMaze();
+    playStep();player={x:xx,y:yy};steps++;
+    if(t==='X' && activeBombs.has(`${xx},${yy}`)){
+      activeBombs.delete(`${xx},${yy}`);
+      lives=Math.max(0,lives-1);
+      playBomb();
+      status.textContent=`Boom! Santa lost a life. ${lives} ${lives===1?'heart':'hearts'} left.`;
+      player={...startPos};
+      drawMaze();updateLives();
+      return;
+    }
+    drawMaze();
     if(t==='G'){
       won=true;status.textContent=`Chimney found in ${steps} moves! Your RSVP is unlocked.`;
       playWin();
@@ -362,6 +457,7 @@
   function openWin(){if(!won)return;lastFocus=document.activeElement;$('winOverlay').hidden=false;$('guestName').focus();}
   function closeWin(){$('winOverlay').hidden=true;const back=document.querySelector('.back-button a');if(back)back.focus();}
   if(c){
+    updateLives();
     drawMaze();
     document.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.move)));
     $('closeWin').addEventListener('click',closeWin);
@@ -418,7 +514,7 @@
       const submission={
         name:nameField.value.trim(),
         response:selectedRsvp,
-        event:'Christmas Night — December 18, 2026 at 6:30 PM',
+        event:'Christmas Night — December 18, 2026 at 7:30 PM',
         _subject:'New Christmas Night RSVP'
       };
       saveButton.disabled=true;

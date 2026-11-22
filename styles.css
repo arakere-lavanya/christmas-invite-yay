@@ -189,3 +189,15 @@ body[data-page="home"] .details .detail-value {
   body[data-page="home"] .details .detail-value {font-size:9px;}
   .dpad .nav-arrow {width:26px;height:26px;flex-basis:26px;}
 }
+
+
+/* Dress-code line on landing page */
+body[data-page="home"] .details .detail:last-child .detail-value{max-width:560px;margin:0 auto;}
+
+/* Maze HUD: hearts / lives */
+.maze-page .game-frame{position:relative;overflow:hidden;}
+.maze-hud{position:absolute;top:8px;right:10px;z-index:2;pointer-events:none;}
+.lives{display:flex;gap:4px;align-items:center;justify-content:flex-end;}
+.heart{font-size:18px;line-height:1;color:#e63946;text-shadow:1px 1px 0 #fff5e1, 2px 2px 0 #7d2133;filter:drop-shadow(1px 1px 0 #7d2133);}
+.heart.lost{color:#e9c9cc;opacity:.82;text-shadow:1px 1px 0 #fff5e1, 2px 2px 0 #b78a90;filter:none;}
+@media(max-width:560px){.maze-hud{top:6px;right:8px}.heart{font-size:16px;}}
