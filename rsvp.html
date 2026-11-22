@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#082419">
+  <meta name="description" content="Help Santa find the chimney in a Christmas pixel maze to unlock your RSVP.">
+  <title>RSVP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="maze" class="maze-page">
+<main class="page">
+  <article class="sheet">
+    <div class="top-garland" aria-hidden="true"><div class="garland-string"></div><div class="garland-blobs"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <h1 class="maze-title pixel">RSVP</h1>
+    <p class="maze-subtitle pixel">Guide Santa to the chimney!</p>
+    <div class="game-frame"><canvas id="maze" width="192" height="176" role="img" aria-label="Interactive Christmas forest maze. Use the arrow buttons or keyboard to guide Santa to the house's chimney."></canvas></div>
+    <p class="game-status sr-only" id="gameStatus" role="status" aria-live="polite"></p>
+    <div class="dpad" role="group" aria-label="Maze direction controls">
+      <button type="button" data-move="up" aria-label="Move up"><svg class="nav-arrow" aria-hidden="true" viewBox="0 0 20 20" style="transform:rotate(0deg)"><path d="M10 1 2 9h5v10h6V9h5z" fill="currentColor"/></svg></button>
+      <button type="button" data-move="left" aria-label="Move left"><svg class="nav-arrow" aria-hidden="true" viewBox="0 0 20 20" style="transform:rotate(-90deg)"><path d="M10 1 2 9h5v10h6V9h5z" fill="currentColor"/></svg></button>
+      <button type="button" data-move="right" aria-label="Move right"><svg class="nav-arrow" aria-hidden="true" viewBox="0 0 20 20" style="transform:rotate(90deg)"><path d="M10 1 2 9h5v10h6V9h5z" fill="currentColor"/></svg></button>
+      <button type="button" data-move="down" aria-label="Move down"><svg class="nav-arrow" aria-hidden="true" viewBox="0 0 20 20" style="transform:rotate(180deg)"><path d="M10 1 2 9h5v10h6V9h5z" fill="currentColor"/></svg></button>
+    </div>
+    <p class="maze-instructions pixel">Use arrow keys or buttons to navigate<br>through the Christmas forest</p>
+    <p class="maze-instructions pixel">Reach the chimney to unlock RSVP</p>
+    <div class="back-button"><a class="button pixel" href="index.html">← BACK TO INVITATION</a></div>
+  </article>
+</main>
+<div class="overlay" id="winOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="winTitle">
+  <div class="modal">
+    <button type="button" class="close" id="closeWin" aria-label="Close RSVP">×</button>
+    <h2 class="pixel" id="winTitle">HOLIDAY PLANS?<br>YOU'VE GOT THEM NOW.</h2>
+    <p>Will you join us for Christmas on Dec 18th?</p>
+    <div id="rsvpForm">
+      <label class="form-label" for="guestName">YOUR NAME</label>
+      <input class="form-input" id="guestName" name="guestName" maxlength="70" autocomplete="name" placeholder="Type your name" required>
+      <div class="form-label" id="responseLabel">YOUR RSVP</div>
+      <div class="choice-group two-choice" role="group" aria-labelledby="responseLabel">
+        <button class="choice rsvp-choice" type="button" data-response="Yas in! Count me on the nice list">YAS IN!<br>COUNT ME ON THE NICE LIST</button>
+        <button class="choice rsvp-choice" type="button" data-response="Hard pass">HARD PASS</button>
+      </div>
+      <div class="form-actions"><button class="button" type="button" id="saveRsvp" disabled>SAVE RSVP</button></div>
+    </div>
+    <p id="formFeedback" class="form-feedback" role="status" aria-live="polite"></p>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
