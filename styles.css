@@ -201,3 +201,12 @@ body[data-page="home"] .details .detail:last-child .detail-value{max-width:560px
 .heart{font-size:18px;line-height:1;color:#e63946;text-shadow:1px 1px 0 #fff5e1, 2px 2px 0 #7d2133;filter:drop-shadow(1px 1px 0 #7d2133);}
 .heart.lost{color:#e9c9cc;opacity:.82;text-shadow:1px 1px 0 #fff5e1, 2px 2px 0 #b78a90;filter:none;}
 @media(max-width:560px){.maze-hud{top:6px;right:8px}.heart{font-size:16px;}}
+/* RSVP messages — plain text, no box */
+.form-feedback {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  text-align: center;
+}
